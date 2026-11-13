@@ -33,7 +33,7 @@ Eine neue Zeile in `nachrichten (titel, text)` löst über einen Datenbank-Trigg
    - `VITE_SUPABASE_URL` und `SUPABASE_URL`: Project URL aus Supabase.
    - `VITE_SUPABASE_PUBLISHABLE_KEY`: Publishable Key aus Supabase.
    - `SUPABASE_SECRET_KEY`: Secret Key aus Supabase. Geheim.
-   - `VAPID_PUBLIC_KEY`, `VITE_VAPID_PUBLIC_KEY` (gleicher Wert) und `VAPID_PRIVATE_KEY`: mit `npx web-push generate-vapid-keys` erzeugen. Der private ist geheim.
+   - VAPID-Schlüssel braucht es nicht, der Server erzeugt sie beim ersten Push selbst und legt sie in `einstellungen` ab.
    - `VAPID_SUBJECT`: optional, Standard ist `mailto:domlin88@gmail.com`.
 3. **Konto:** die App öffnen und mit „Ich habe noch kein Konto“ registrieren. Das erste Konto wird automatisch der Besitzer, alle späteren sehen nichts. Danach in Supabase unter Authentication die Registrierung neuer Nutzer abschalten.
 4. **Push-Trigger:** in Supabase einmal ausführen, mit der echten Adresse. Das Geheimnis entsteht in der Datenbank und muss nirgends abgetippt werden:

@@ -1,6 +1,11 @@
 // Benachrichtigungen: Service Worker, Push-Abo anlegen und in Supabase speichern.
 
-const VAPID = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+async function vapidHolen() {
+  const r = await fetch('/api/vapid-key', { cache: 'no-store' });
+  const j = await r.json().catch(() => null);
+  if (!r.ok || !j?.schluessel) throw new Error((j && j.fehler) || 'Der Server liefert keinen Push-Schlüssel.');
+  return j.schluessel;
+}
 
 export function istIOS() {
   const ua = navigator.userAgent;
@@ -12,7 +17,7 @@ export function istInstalliert() {
 }
 
 export function pushMoeglich() {
-  return 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window && !!VAPID;
+  return 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
 }
 
 export async function serviceWorkerStarten() {
@@ -55,7 +60,7 @@ export async function pushEinschalten(sb) {
   const reg = await navigator.serviceWorker.ready;
   const abo =
     (await reg.pushManager.getSubscription()) ??
-    (await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: schluesselBytes(VAPID) }));
+    (await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: schluesselBytes(await vapidHolen()) }));
   const d = abo.toJSON();
   if (!d.endpoint || !d.keys?.p256dh || !d.keys?.auth) throw new Error('Das Handy hat kein vollständiges Push-Abo geliefert.');
   const { error } = await sb

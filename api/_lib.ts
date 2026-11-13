@@ -44,15 +44,34 @@ export async function istBesitzer(req: VercelRequest, db: SupabaseClient): Promi
   return !!b;
 }
 
-let bereit = false;
-function vorbereiten(): void {
-  if (bereit) return;
-  const pub = process.env.VAPID_PUBLIC_KEY;
-  const priv = process.env.VAPID_PRIVATE_KEY;
-  const sub = process.env.VAPID_SUBJECT || 'mailto:domlin88@gmail.com';
-  if (!pub || !priv) throw new Error('Die VAPID-Schlüssel fehlen in den Umgebungsvariablen.');
-  webpush.setVapidDetails(sub, pub, priv);
-  bereit = true;
+/**
+ * VAPID-Schlüssel für Web-Push. Sie entstehen beim ersten Aufruf auf dem Server und liegen
+ * dann in der Tabelle einstellungen, die nur der Server lesen kann. Der private Schlüssel
+ * verlässt den Server nie.
+ */
+export async function vapidSchluessel(db: SupabaseClient): Promise<{ pub: string; priv: string }> {
+  const { data, error } = await db.from('einstellungen').select('schluessel, wert').in('schluessel', ['vapid_public', 'vapid_private']);
+  if (error) throw error;
+  const m = Object.fromEntries((data ?? []).map((z: { schluessel: string; wert: string }) => [z.schluessel, z.wert]));
+  if (m.vapid_public && m.vapid_private) return { pub: m.vapid_public, priv: m.vapid_private };
+  const neu = webpush.generateVAPIDKeys();
+  const { error: e2 } = await db.from('einstellungen').upsert(
+    [
+      { schluessel: 'vapid_public', wert: neu.publicKey },
+      { schluessel: 'vapid_private', wert: neu.privateKey },
+    ],
+    { onConflict: 'schluessel', ignoreDuplicates: true },
+  );
+  if (e2) throw e2;
+  const { data: d2, error: e3 } = await db.from('einstellungen').select('schluessel, wert').in('schluessel', ['vapid_public', 'vapid_private']);
+  if (e3) throw e3;
+  const m2 = Object.fromEntries((d2 ?? []).map((z: { schluessel: string; wert: string }) => [z.schluessel, z.wert]));
+  return { pub: m2.vapid_public, priv: m2.vapid_private };
+}
+
+async function vorbereiten(db: SupabaseClient): Promise<void> {
+  const { pub, priv } = await vapidSchluessel(db);
+  webpush.setVapidDetails(process.env.VAPID_SUBJECT || 'mailto:domlin88@gmail.com', pub, priv);
 }
 
 export interface Nachricht {
@@ -64,7 +83,7 @@ export interface Nachricht {
 
 /** Schickt eine Nachricht an alle registrierten Geräte. Abgemeldete Geräte werden entfernt. */
 export async function pushAnAlle(db: SupabaseClient, n: Nachricht): Promise<{ gesendet: number; fehlgeschlagen: number }> {
-  vorbereiten();
+  await vorbereiten(db);
   const { data, error } = await db.from('push_abos').select('id, endpoint, p256dh, auth');
   if (error) throw error;
   let gesendet = 0;
