@@ -4,8 +4,9 @@ import { makeDb } from './db.js';
 import { istInstalliert, istIOS, pushAktiv, pushEinschalten, pushMoeglich, pushTesten, serviceWorkerStarten } from './push.js';
 import './styles.css';
 
-const URL_ = import.meta.env.VITE_SUPABASE_URL;
-const KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+// Beides ist öffentlich und darf im Code stehen. Fest eingetragen, damit ein Tippfehler bei Vercel die App nicht lahmlegt.
+const URL_ = 'https://jmgkdairimxbhqivqovo.supabase.co';
+const KEY = 'sb_publishable_w01mqsLB_vzmalDxp089pQ_XlEnGyFF';
 const $ = (id) => document.getElementById(id);
 const wrap = document.querySelector('.wrap');
 const nav = document.querySelector('nav');

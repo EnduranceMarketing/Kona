@@ -4,9 +4,9 @@ import * as webpush from 'web-push';
 
 /** Datenbankzugang mit vollen Rechten. Läuft nur auf dem Server. */
 export function admin(): SupabaseClient {
-  const url = process.env.SUPABASE_URL;
+  const url = 'https://jmgkdairimxbhqivqovo.supabase.co';
   const key = process.env.SUPABASE_SECRET_KEY;
-  if (!url || !key) throw new Error('SUPABASE_URL oder SUPABASE_SECRET_KEY fehlt in den Umgebungsvariablen.');
+  if (!key) throw new Error('SUPABASE_SECRET_KEY fehlt in den Umgebungsvariablen.');
   return createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
 }
 
