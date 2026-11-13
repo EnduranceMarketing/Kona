@@ -34,13 +34,13 @@ Eine neue Zeile in `nachrichten (titel, text)` löst über einen Datenbank-Trigg
    - `VITE_SUPABASE_PUBLISHABLE_KEY`: Publishable Key aus Supabase.
    - `SUPABASE_SECRET_KEY`: Secret Key aus Supabase. Geheim.
    - `VAPID_PUBLIC_KEY`, `VITE_VAPID_PUBLIC_KEY` (gleicher Wert) und `VAPID_PRIVATE_KEY`: mit `npx web-push generate-vapid-keys` erzeugen. Der private ist geheim.
-   - `PUSH_GEHEIMNIS`: eine lange Zufallsfolge, zum Beispiel aus einem Passwort-Generator. Geheim.
+   - `VAPID_SUBJECT`: optional, Standard ist `mailto:domlin88@gmail.com`.
 3. **Konto:** die App öffnen und mit „Ich habe noch kein Konto“ registrieren. Das erste Konto wird automatisch der Besitzer, alle späteren sehen nichts. Danach in Supabase unter Authentication die Registrierung neuer Nutzer abschalten.
-4. **Push-Trigger:** in Supabase einmal ausführen, mit der echten Adresse und demselben Geheimnis wie bei Vercel:
+4. **Push-Trigger:** in Supabase einmal ausführen, mit der echten Adresse. Das Geheimnis entsteht in der Datenbank und muss nirgends abgetippt werden:
    ```sql
    insert into einstellungen (schluessel, wert) values
      ('app_url', 'https://DEINE-APP.vercel.app'),
-     ('push_geheimnis', 'GLEICHER-WERT-WIE-PUSH_GEHEIMNIS')
+     ('push_geheimnis', replace(gen_random_uuid()::text || gen_random_uuid()::text, '-', ''))
    on conflict (schluessel) do update set wert = excluded.wert;
    ```
 5. **Handy:** App öffnen, zum Startbildschirm hinzufügen, aus dem Symbol starten und Benachrichtigungen einschalten.

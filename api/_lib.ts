@@ -49,8 +49,8 @@ function vorbereiten(): void {
   if (bereit) return;
   const pub = process.env.VAPID_PUBLIC_KEY;
   const priv = process.env.VAPID_PRIVATE_KEY;
-  const sub = process.env.VAPID_SUBJECT;
-  if (!pub || !priv || !sub) throw new Error('Die VAPID-Schlüssel fehlen in den Umgebungsvariablen.');
+  const sub = process.env.VAPID_SUBJECT || 'mailto:domlin88@gmail.com';
+  if (!pub || !priv) throw new Error('Die VAPID-Schlüssel fehlen in den Umgebungsvariablen.');
   webpush.setVapidDetails(sub, pub, priv);
   bereit = true;
 }
