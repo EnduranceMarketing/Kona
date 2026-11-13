@@ -135,3 +135,9 @@ $$;
 drop trigger if exists nachricht_neu on public.nachrichten;
 create trigger nachricht_neu after insert on public.nachrichten
   for each row execute function public.nachricht_senden();
+
+-- Funktionen nicht über die öffentliche API aufrufbar machen
+revoke execute on function public.erstes_konto_wird_besitzer() from public, anon, authenticated;
+revoke execute on function public.nachricht_senden() from public, anon, authenticated;
+revoke execute on function public.ist_besitzer() from public, anon;
+grant execute on function public.ist_besitzer() to authenticated;
