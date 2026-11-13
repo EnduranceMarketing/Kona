@@ -1,0 +1,22 @@
+{
+  "name": "kona",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.119.0",
+    "web-push": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/web-push": "^3.6.4",
+    "@vercel/node": "^30.0.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.8"
+  }
+}
