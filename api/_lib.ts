@@ -1,6 +1,6 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import webpush from 'web-push';
+import * as webpush from 'web-push';
 
 /** Datenbankzugang mit vollen Rechten. Läuft nur auf dem Server. */
 export function admin(): SupabaseClient {
