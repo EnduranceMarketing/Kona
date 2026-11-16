@@ -146,6 +146,8 @@ function dayStatus(date){
   if(st.some(x=>x==="missed"||x==="skipped")) return st.some(x=>x==="done") ? "part" : "miss";
   return st.some(x=>x==="done") ? "part" : "open";
 }
+/* Mobility und Liegestütze zählen nicht zur Quote, nur die Einheiten aus dem Trainingsplan. */
+function zaehlt(s){ return s.kind!=="mobility"; }
 function quota(){
   const ws=mondayOf(TODAY), we=addDays(ws,6);
   const q={wDue:0,wDone:0,wOpen:0,wMoved:0,bDue:0,bDone:0};
@@ -153,6 +155,7 @@ function quota(){
     if(date<BLOCK_START_ISO) continue;
     const inWeek=date>=ws&&date<=we;
     (S.plan[date].sessions||[]).forEach(s=>{
+      if(!zaehlt(s)) return;
       if(inWeek&&s.movedFrom) q.wMoved++;
       const st=sessState(date,s);
       if(date>TODAY||st==="open"){ if(inWeek) q.wOpen++; return; }
@@ -396,7 +399,7 @@ function weekStats(){
   for(let w=1;w<=cw;w++){
     const mon=addDays(BLOCK_START_ISO,(w-1)*7), st={w:w,due:0,done:0,moved:0,keyMiss:0,minPlan:0,minDone:0,complete:addDays(mon,6)<TODAY};
     for(let i=0;i<7;i++){ const d=addDays(mon,i), P=S.plan[d]; if(!P) continue;
-      (P.sessions||[]).forEach(s=>{ if(s.movedFrom) st.moved++;
+      (P.sessions||[]).forEach(s=>{ if(!zaehlt(s)) return; if(s.movedFrom) st.moved++;
         const x=sessState(d,s); if(d>TODAY||x==="open") return;
         st.due++; st.minPlan+=s.min||0;
         if(x==="done"){ st.done++; st.minDone+=s.min||0; } else if(s.key) st.keyMiss++; }); }
